@@ -1,5 +1,12 @@
 #/usr/bin/ruby
 
+# Lösungsansatz:
+# Behalte das Parsing aus Tag1a
+# Das rechte Array sollte ein Hash sein - Integer und dessen Anzahl. Nur Werte aus dem rechten Hash werden für die Lösung `similarity_score` aufmultipliziert.
+# Das linke Array bestimmt, welche Keys aus dem rechten Hash verwendet werden und welche verworfen werden.
+# iteriere zuerst über das rechte Array, überführe es in einen Hash mit Anzahl.
+# iteriere danach über das linke Array und wähle benutze dessen Werte als Schlüssel des rechten Hashes
+
 left = Array.new
 right = Array.new
 similarity_score=0
