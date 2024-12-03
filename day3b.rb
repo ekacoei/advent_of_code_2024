@@ -1,5 +1,7 @@
 # Advent of Code Day3a
 
+# Workarounds: Zeilenumbrüche im Input entfernen.
+
 # Aufgabenstellung:
 #   RegEx mul(123,9)
 #   Nach Zahlentupel parsen, einzelne Tupel multiplizieren
