@@ -26,11 +26,12 @@
 #  5a teil 2 - Class ordering parsen 15min
 #  Pause. Aufmerksamkeitsspanne gerissen
 #  Aufgabenstellung noch einmal lesen
+#  Bugfix: Erst, nachdem das Ruleset zu einer Seite diese Seite gesehen kann, können Regeln verletzt werden 35min
 
 
 class BeforeAfterRule
   def initialize(first_num_in_ruleset)
-    @num=first_num_in_ruleset  
+    @num=first_num_in_ruleset
     @seen_self=false
     @done=false
     @valid=true
@@ -41,15 +42,16 @@ class BeforeAfterRule
   def addpage( pagenumber )
     unless @done
       @seen.push(pagenumber)
-      rule_exists=@before[pagenumber]
-      if rule_exists 
+      rule_exists=@before[pagenumber] # 5|4  pagenumber
+      page_has_been_seen=@seen.include? pagenumber
+      if rule_exists and @seen_self
         puts "Adding #{pagenumber} to #{@seen.join(',')} invalidates rule #{@num}|#{pagenumber}"
-        valid=false
+        @valid=false
+#        @done=true - nicht abbrechen
       end
-      if pagenumber == @num
-        @done=true
-        
-      end
+    end
+    if pagenumber == @num
+      @seen_self=true
     end
   end
   def addrule( before_this_num)
@@ -60,9 +62,12 @@ class BeforeAfterRule
       puts "#{@num}|#{key}"
     end
   end
+  def valid?
+    @valid
+  end
 end
 
-puzzleinput = File.read('day5sample.input')
+puzzleinput = File.read('day5sample.simplified.input')
 
 puts puzzleinput
 rulestring,pageorderingstring=puzzleinput.split("\n\n")
