@@ -89,15 +89,22 @@ class Map
     lines = puzzleinputstring.split("\n")
     @maxy=lines.length-1
     @maxx=lines[0].length-1
-    @letters = Hash.new( Array.new )
-    @letters["a"]=[[0,0]]
+    @letters = Hash.new()
+    ('a'..'z').to_a.each do | key  |
+       @letters[key]=[]
+    end
+    ('A'..'Z').to_a.each do | key  |
+       @letters[key]=[]
+    end
+    ('0'..'9').to_a.each do | key  |
+       @letters[key]=[]
+    end
     for yidx in 0..@maxy-1
       l=lines[yidx].chomp
       for xidx in 0..@maxx-1
         puts "Dbg: y=#{yidx},x=#{xidx}, l=#{l[xidx]}"
         if l[xidx] =~ /[a-zA-Z0-9]/
           puts "Dbg: RegEx match"
-          @letters[ "foo" ].push ( [0,1] )
           @letters[ l[xidx] ].push( [yidx, xidx] )
           puts @letters.inspect
         end

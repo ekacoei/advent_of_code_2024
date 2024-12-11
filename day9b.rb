@@ -14,21 +14,56 @@
 # (1,0)
 # (2,3-2)
 
+def visualize( array_of_fsblocks) 
+  disk=Array.new
+  array_of_fsblocks.each_with_index do |val, idx|
+    file,space,fileindex=val
+#      puts "Debug file=#{file}, space=#{space}, fileidx=#{fileindex}"
+      file.times do
+      disk.push( fileindex)
+    end
+  space.times do
+    disk.push( '.')
+  end
+  puts disk.join()
+  puts array_of_fsblocks.inspect
+end
+
+end
+
 res=File.read( ARGV[0] ).scan( %r{(\d)(\d)} ).map { |an_array| an_array.map { |x| x.to_i} }
+# Index muss mit transferiert werden
+# (2, 0, 0) Dateilänge=2, Space=0, Index=0
+
+for i in 0..res.length-1
+  res[i].push(i)
+end
+
 puts res.inspect
+visualize(res)
+
+puts "nach indizierung", res.inspect
+
+visualize(res)
 
 lptr=0
 rptr=res.length-1
 while rptr > 0
   blocksize=res[rptr][0]
+  lptr=0
   while lptr < rptr
+    visualize(res)
     free=res[lptr][1]
     if free >= blocksize
+      puts "Debug: Moving #{rptr} to #{lptr}"
       # verschobene Datei in den freien Bereich links einfügen,
       # anschließend aus Speicher hinten dem freien Speicher zuordnen
       res[lptr][1] -= blocksize
-      res.insert( lptr+1, [blocksize, free-blocksize] )
+      free_space_left = res[lptr][1]
+      res[lptr][1] = 0
+      res.insert( lptr+1, [blocksize, free-blocksize, res[rptr][2]] )
       res[rptr][0]=0
+      res[rptr][2]=0
       res[rptr][1]+=blocksize
       break
     end
@@ -38,42 +73,13 @@ while rptr > 0
 end
 
 puts res.inspect
+visualize(res)
+
+
+
+
 
 exit
-
-disk=Array.new
-res.each_with_index do |val, idx|
-  file,space=val
-  file=file.to_i
-  space=space.to_i
-  file.times do
-    disk.push( idx)
-  end
-  space.times do
-    disk.push( -1)
-  end
-end
-
-puts disk.inspect
-
-leftidx=0
-rightidx=disk.length-1
-while leftidx < rightidx
-  if disk[leftidx] != -1  
-    leftidx += 1 
-    next
-  end
-  if disk[rightidx] == -1
-    rightidx -=1
-    puts "Das hätte nicht passieren sollen"
-    next
-  end
-  puts "Swapping #{leftidx} #{rightidx}"
-  disk[leftidx]=disk[rightidx]
-  disk[rightidx]=-1
-  leftidx+=1
-  rightidx-=1
-end
   
 puts disk.inspect
 

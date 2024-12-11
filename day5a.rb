@@ -27,6 +27,7 @@
 #  Pause. Aufmerksamkeitsspanne gerissen
 #  Aufgabenstellung noch einmal lesen
 #  Bugfix: Erst, nachdem das Ruleset zu einer Seite diese Seite gesehen kann, können Regeln verletzt werden 35min
+#  30min Ruby-Unwissen, hash.key
 
 
 class BeforeAfterRule
@@ -36,15 +37,19 @@ class BeforeAfterRule
     @done=false
     @valid=true
     @seen=Array.new
-    @before=Hash.new(0)
+#    @before=Hash.new(0)
+    @after_this_num=Hash.new(0) # Sollzustand - müssen danach folgen
   end
-
+  def debug( msg)
+     STDERR.puts msg
+  end
   def addpage( pagenumber )
     unless @done
       @seen.push(pagenumber)
-      rule_exists=@before[pagenumber] # 5|4  pagenumber
-      page_has_been_seen=@seen.include? pagenumber
-      if rule_exists and @seen_self
+      rule_exists=@after_this_num.key?(pagenumber) # 5|4  pagenumber
+      debug "thisClass=#{@num},Pagenumber=#{pagenumber},rule=#{rule_exists}"
+      if rule_exists and (! @seen_self) and (@num == pagenumber)
+        debug @after_this_num.inspect
         puts "Adding #{pagenumber} to #{@seen.join(',')} invalidates rule #{@num}|#{pagenumber}"
         @valid=false
 #        @done=true - nicht abbrechen
@@ -52,18 +57,20 @@ class BeforeAfterRule
     end
     if pagenumber == @num
       @seen_self=true
+      @done=true
     end
   end
-  def addrule( before_this_num)
-    @before[before_this_num] += 1
+  def addrule( after)
+#    @before[before_this_num] += 1
+    @after_this_num[after] += 1
   end
   def prettyprint
-    @before.keys.sort.each do |key|
+    @after_this_num.keys.sort.each do |key|
       puts "#{@num}|#{key}"
     end
   end
-  def valid?
-    @valid
+  def valid?()
+    return @valid
   end
 end
 
@@ -97,9 +104,17 @@ end
 pageorderingstring.split("\n").each do |orderingline|
   orderingline=orderingline.chomp
   rs=$ruleset.dup
-  orderingline.split(',') do |a_page|
-    rs.keys.sort.each do | rulekey |
-      rs[rulekey].addpage( a_page)
+  page_list=orderingline.split(',')
+  page_list.each do |a_page|
+    page_list.each do |rule_anchor|
+      rs[rule_anchor].addpage (a_page)
     end
   end
+  ruleset_is_valid_for_single_line = rs.all? do |ruleset |
+    puts "Debug: #{rs.class}"
+    puts "Debug: #{ruleset.class}"
+    ruleset.valid?()
+  end
+  puts "#{orderingline} is valid=#{ruleset_is_valid_for_single_line}"
 end
+

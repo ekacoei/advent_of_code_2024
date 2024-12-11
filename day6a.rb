@@ -90,9 +90,9 @@ m.parseInputString( inputstring)
 m.prettyprint
 puts m.canWalk?
 
-for i in 1..200 do
+while ! m.done?
   m.walk
-  m.prettyprint
+#  m.prettyprint
 end
 
 m.cnt
