@@ -16,7 +16,7 @@ day8a 00:14:00 00:50:00
 day8b 00:05:00
 day9a 00:28:00 00:20:00
 day9b 00:30:00
-day10a 00:17:30
+day10a 00:17:30 00:40:00
 day10b 00:01:30
 day11a 00:07:30 00:15:00
 day11b 00:39:00 01:00:00 #eigenen Hash-Key implementiert
