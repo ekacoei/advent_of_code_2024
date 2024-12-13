@@ -18,6 +18,12 @@ class Koordinate
   def dup
     return Koordinate.new(@y,@x)
   end
+  def eql?(b)
+    if @y==b.y && @x==b.x
+     return true
+    end
+    return false
+  end
 end
 
 class Map
@@ -51,6 +57,7 @@ class Map
   end
 end
 
+
 class Area
   def initialize(y,x)
     @y=y
@@ -80,7 +87,7 @@ class Area
     current=@dijkstra
     candidate=Array.new
     fence=Array.new
-    area=Array.new
+    area=Array.new # neu in der Iteration hinzu gewonnene Flächen
 
     current.each do |k|
       x=k.x
@@ -94,47 +101,59 @@ class Area
       candidate_letter = $m.getc( c.y, c.x )
       puts "Trying koord=#{c.inspect} letter=#{candidate_letter}, onMap?=#{$m.onMap?(c)}"
       if $m.onMap?(c) && candidate_letter == @letter
-        puts "Füge #{c.inspect} zum Area hinzu"
-        area.push(c)
+        puts "Füge #{c.inspect} zum Area #{area.inspect} hinzu"
+        area.push(c.dup)
+        area<<c.dup
       end
       if ! $m.onMap?(c) || candidate_letter != @letter
-        puts "Füge #{c.inspect} zum Zaun hinzu"
+        puts "Füge #{c.inspect} zum Zaun #{fence.inspect} hinzu"
         fence.push(c)
       end
     end
-    @dijkstra=area
-    # Wichtig: Eine Zaunkoordinate kann von bis zu 4 Seiten hinzugefügt werden
-    # Wichtig: Eine zur-Fläche-Koordinate muss uniq sein
+
+    fence.each do |f|
+      @perimeter.push(f)
+    end
     area.each do |a|
       @area.push(a)
     end
 
+    puts "Debug: Neu hinzugewonnene Fächen #{area.inspect}"
+    puts "Debug: Neu hinzugewonnene Zäune #{fence.inspect}"
+
+    # Wichtig: Eine Zaunkoordinate kann von bis zu 4 Seiten hinzugefügt werden
+    # Wichtig: Eine gehört-zur-Fläche-Koordinate muss uniq sein
+    @area.uniq {|koord| koord.hash}
+
+    @dijkstra=area.uniq {|koord| koord.hash}
+
+    puts "Debug Dijkstra=#{@dijkstra.inspect}"
+
+
     # defekt. Vermutlich wegen globaler Variable $m=Map.new
 #    area_before=Marshal.load(Marshal.dump(@area))
 #    area_after=Marshal.load(Marshal.dump(@area)).uniq { |k| k.hash }
-    cpy=Array.new
-    @area.each do |k|
-      puts "Debug #{k.class} #{k.inspect}"
-      cpy.push(k)
-    end
-    puts "CPU #{cpy.inspect}"
-    area_before=@area.map { |e| e.dup}
-    area_after=@area.dup.uniq { |k| k.hash }
-    puts "Debug: #{@area.inspect}"
-    puts "Vor uniq  #{@area_before.inspect}"
-    puts "Nach uniq #{@area_after.inspect}"
-    @area=area_after
-    if area_before.length==area_after.length
-      @done=true
-    end
-    fence.each do |f|
-      @perimeter.push(f)
-    end
+
+#    #defekt - aber warum?
+#    area_before=Array.new
+#    area_after=Array.new
+#    @area.each do |k|
+#      puts "Debug #{k.dup.class} #{k.dup.inspect}"
+#      area_before.push( k.dup)
+#      area_after.push( k.dup)
+#    end
+#    #ende defekt
+
+    # wenn der dijkstra leer ist, bin ich fertig.
+    # subtrahiere bekannte Fläche/area vom Diskstra
+    @dijkstra = @dijkstra - @area
+    
   end
 end
 
 $m=Map.new
 puts $m.inspect
 a=Area.new(0,0)
-puts a.inspect
-puts a.iterate.inspect
+a.iterate
+puts
+a.iterate

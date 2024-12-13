@@ -20,3 +20,6 @@ day10a 00:17:30 00:40:00
 day10b 00:01:30
 day11a 00:07:30 00:15:00
 day11b 00:39:00 01:00:00 #eigenen Hash-Key implementiert
+day12a          01:30:00 #Schaden beim Anhängen an Array
+day13a 00:33:00 01:15:00 #Analytische Lösung betrachtet, Tippfehler in Variablenname
+day13b 00:01:00
